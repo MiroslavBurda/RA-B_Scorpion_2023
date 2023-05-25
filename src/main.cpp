@@ -53,7 +53,7 @@ void handleButton(const char buffer[bufferSize]);
 void setup() {
     auto& man = rb::Manager::get();
 
-    man.install();
+    man.install(rb::ManagerInstallFlags::MAN_DISABLE_MOTOR_FAILSAFE);
     man.initSmartServoBus(4, GPIO_NUM_14);
 
     if (!man.expander().digitalRead(SW3)) {
