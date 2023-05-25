@@ -12,6 +12,7 @@ bool g_handLocked = false;
 bool g_handState = false;
 bool g_leftBatteryState = false;
 bool g_rightBatteryState = false;
+bool g_armState = false;
 
 constexpr rb::MotorId leftMotor = rb::MotorId::M1;
 constexpr rb::MotorId rightMotor = rb::MotorId::M2;
@@ -20,6 +21,7 @@ constexpr std::size_t bufferSize = 64;
 
 constexpr size_t axisOpCode = 0x80;
 constexpr size_t axisCount = 8;
+// cislo os je o dve vyssi, nez pise Lorris, protoze prvni byte je hlavicka a druhy je pocet os a az potom jsou hodnoty os
 constexpr size_t xAxisPosition = 2;
 constexpr size_t yAxisPosition = 3;
 constexpr size_t armAxisPosition = 5;
@@ -39,11 +41,11 @@ const rb::Angle handClosed = 0_deg;
 
 constexpr uint8_t leftBatteryId = 2;
 const rb::Angle leftBatteryDown = 0_deg;
-const rb::Angle leftBatteryUp = 89_deg;
+const rb::Angle leftBatteryUp = 90_deg;
 
 constexpr uint8_t rightBatteryId = 3;
 const rb::Angle rightBatteryDown = 6_deg;
-const rb::Angle rightBatteryUp = 90_deg;
+const rb::Angle rightBatteryUp = 92_deg;
 
 void handleAxes(const char buffer[bufferSize]);
 void handleButton(const char buffer[bufferSize]);
@@ -204,11 +206,11 @@ void handleAxes(const char buffer[bufferSize]) {
 
         man.servoBus().set(armId, Angle::deg(armAngle));
     }
-    if (static_cast<int8_t>(buffer[armAxisPosition]) > 0) {
-        man.servoBus().set(armId, armUp);
-    }
-    else
-        man.servoBus().set(armId, armDown);
+    // if (static_cast<int8_t>(buffer[armAxisPosition]) > 0) { // zapne mod, kdy je ruka pouze v krajnich polohach 
+    //     man.servoBus().set(armId, armUp);
+    // }
+    // else
+    //     man.servoBus().set(armId, armDown);
 }
 
 void handleButton(const char buffer[bufferSize]) {
@@ -232,13 +234,6 @@ void handleButton(const char buffer[bufferSize]) {
                 man.servoBus().set(handId, handOpened);
         }
         break;
-    case 1:
-        g_handState = state;
-        break;
-
-    case 2:
-        g_handLocked = true;
-        break;
     case 3:
         g_handLocked = true;
         break;
@@ -247,6 +242,9 @@ void handleButton(const char buffer[bufferSize]) {
         break;
     case 5:
         g_rightBatteryState = state;
+        break;
+    case 8:
+        g_handState = state;
         break;
     default:
         break;
